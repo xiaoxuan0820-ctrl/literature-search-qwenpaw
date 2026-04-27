@@ -1,8 +1,8 @@
 ---
 name: literature-search
-description: 一个使用浏览器自动化进行学术文献检索的QwenPaw技能。支持从Google Scholar、Semantic Scholar、arXiv等主要学术数据源检索文献，并提供结果解析、引用格式转换等功能。
+description: 一个使用浏览器自动化和API调用进行学术文献检索的QwenPaw技能。支持从Google Scholar、Semantic Scholar、arXiv等主要学术数据源检索文献，并提供结果解析、引用格式转换、过滤和批量处理等功能。
 metadata:
-  builtin_skill_version: "1.0"
+  builtin_skill_version: "1.1"
   qwenpaw:
     emoji: "🔍"
     requires: []
@@ -18,21 +18,26 @@ metadata:
 - 需要自动化收集研究主题相关的文献时
 - 想要生成标准引用格式的参考文献时
 - 进行文献综述或研究背景调研时
+- 需要按年份过滤搜索结果时
+- 想要批量检索多个关键词时
+- 想要将结果导出为RIS、BibTeX等格式时
 
 ## 功能特点
 
-1. **多源检索**：支持Google Scholar、Semantic Scholar、arXiv等主要学术数据库
+1. **多源检索**：支持Google Scholar（浏览器自动化）、Semantic Scholar（API）、arXiv等主要学术数据库
 2. **智能解析**：自动提取论文标题、作者、摘要、发表年份等关键信息
-3. **引用格式**：支持APA、MLA、Chicago、IEEE等常用引用格式转换
+3. **引用格式**：支持APA、MLA、Chicago、IEEE等常用引用格式转换（通过外部脚本）
 4. **结果过滤**：可按时间范围、文献类型进行过滤
 5. **批量处理**：支持一次检索多个关键词或研究主题
 6. **结果导出**：可导出为BibTeX、RIS、CSV等常用格式
+7. **模板支持**：提供论文大纲和研究计划模板
 
 ## 使用前提
 
-- 需要启用浏览器自动化功能（browser_use skill）
-- 建议在有网络连接的环境中使用
+- 需要启用浏览器自动化功能（browser_use skill）用于Google Scholar检索
+- Semantic Scholar功能需要网络连接访问其API
 - 检索频率请遵守目标网站的使用政策，避免过于频繁的请求
+- 某些脚本需要Python环境（建议Python 3.6+）
 
 ## 安装方法
 
@@ -42,54 +47,42 @@ metadata:
 
 ### 基础用法
 
-通过QwenPaw的浏览器自动化功能执行文献检索：
+通过QwenPaw的浏览器自动化功能或脚本执行文献检索：
 
-1. 启动浏览器（如果尚未启动）
-2. 导航到目标学术数据库
+1. 启动浏览器（如果尚未启动，用于Google Scholar）
+2. 导航到目标学术数据库或调用相应API
 3. 输入搜索关键词
 4. 解析搜索结果
-5. 提取所需信息
+5. 提取所需信息或执行后处理（过滤、导出等）
 
 ### 示例工作流
 
 下面是一个典型的文献检索工作流示例：
 
-#### 步骤1：启动浏览器
-```bash
-# 通过QwenPaw启动浏览器（已在SKILL中处理）
-```
+#### 步骤1：选择检索方式
+- 使用浏览器自动化进行Google Scholar检索
+- 使用Semantic Scholar API进行程序化检索
 
-#### 步骤2：访问Google Scholar
-```bash
-# 导航到scholar.google.com
-```
+#### 步骤2：执行检索
+- 输入搜索查询
+- 获取搜索结果
 
-#### 步骤3：输入搜索查询
-```bash
-# 在搜索框中输入研究主题关键词
-```
-
-#### 步骤4：解析结果
-```bash
-# 提取标题、作者、摘要、链接等信息
-```
-
-#### 步骤5：格式化输出
-```bash
-# 转换为所需的引用格式（如APA、BibTeX等）
-```
+#### 步骤3：后处理
+- 按年份过滤结果
+- 导出为特定格式（RIS、BibTeX等）
+- 批量检索多个关键词
 
 ## 常用数据源及特点
 
-### Google Scholar
+### Google Scholar（浏览器自动化）
 - 优点：覆盖面广，包含各种类型的学术文献
 - 缺点：可能有反爬虫机制，需要适当的请求间隔
-- 适用场景：综合性文献检索
+- 适用场景：综合性文献检索、需要完整摘要时
 
-### Semantic Scholar
-- 优点：由AI2驱动，提供丰富的元数据和引用网络信息
-- 缺点：覆盖范围相对Google Scholar较窄
-- 适用场景：计算机科学、生物医学等领域
+### Semantic Scholar（API）
+- 优点：由AI2驱动，提供丰富的元数据和引用网络信息，响应快速
+- 缺点：覆盖范围相对Google Scholar较窄，但持续扩展中
+- 适用场景：快速检索、需要引用数据、程序化处理
 
 ### arXiv
 - 优点：预印本服务器，获取最新研究快速
@@ -103,6 +96,7 @@ metadata:
 3. **结果验证**：自动解析的结果可能有误，重要信息请人工核对
 4. **语言支持**：主要支持英文文献，中文文献检索效果可能有所不同
 5. **网络依赖**：需要稳定的网络连接才能正常工作
+6. **API限制**：Semantic Scholar API有速率限制，请合理使用
 
 ## 故障排除
 
@@ -115,6 +109,7 @@ metadata:
 | 频繁验证码 | 请求过于频繁 | 增加请求间隔时间，使用随机延迟 |
 | 解析错误 | 网页结构变化 | 检查目标网站是否更新了界面，调整选择器 |
 | 导出格式错误 | 数据字段缺失 | 检查所需字段是否成功提取，补充默认值 |
+| API请求失败 | 网络问题或速率限制 | 检查网络连接，等待后重试，考虑使用API密钥 |
 
 ## 最佳实践
 
@@ -123,27 +118,44 @@ metadata:
 3. **及时保存**：定期保存检索结果，防止意外丢失
 4. **记录过程**：记录检索策略、时间、数据源等信息，便于重复和验证
 5. **尊重资源**：遵守目标网站的robots.txt和使用条款
+6. **结合使用**：浏览器自动化适合深度检索，API适合快速检索和数据分析
 
 ## 示例脚本
 
 此技能包含以下示例脚本（在scripts/目录中）：
-- `google_scholar_search.sh`：Google Scholar检索示例
-- `semantic_scholar_search.py`：Semantic Scholar检索示例（Python）
-- `export_bibtex.py`：将检索结果导出为BibTeX格式
-- `filter_by_year.sh`：按发表年份过滤结果
+- `google_scholar_search_example.sh`：Google Scholar检索工作流示例（使用浏览器自动化）
+- `semantic_scholar_search.py`：使用 Semantic Scholar API 进行学术文献检索的 Python 脚本
+- `export_ris.py`：将检索结果导出为 RIS 格式的脚本
+- `filter_by_year.sh`：按发表年份过滤 Semantic Scholar 搜索结果的脚本
+- `search_multiple_keywords.sh`：批量关键词检索脚本
+
+## 模板文件
+
+此技能包含以下模板文件（在templates/目录中）：
+- `paper_outline.md`：论文大纲模板（IMRaD结构）
+- `research_plan.md`：研究计划模板
 
 ## 更新日志
 
+### v1.1.0（当前版本）
+- 新增 Semantic Scholar API 支持
+- 新增结果导出功能（RIS格式）
+- 新增结果过滤功能（按年份）
+- 新增批量检索功能
+- 新增论文大纲和研究计划模板
+- 完善文档和示例脚本
+
 ### v1.0.0（初始版本）
 - 基础文献检索功能
-- 支持Google Scholar、Semantic Scholar、arXiv
-- 基础结果解析和引用格式转换
+- 支持Google Scholar（浏览器自动化）
+- 基础结果解析
 - 示例脚本集合
 
 ## 致谢
 
 此技能参考了以下项目的思想和实现：
 - Academic Research Skills for Claude Code
+- Semantic Scholar API 文档
 - 各种开源学术检索工具
 - QwenPaw社区的最佳实践
 
